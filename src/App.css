@@ -1,0 +1,19 @@
+.App {
+	display:grid;
+	grid-template-columns: auto 1fr;
+	grid-template-rows: auto 1fr;
+	gap:20px;
+}
+.App-Header{
+	grid-column: 1/3;
+	display: flex;
+}
+h1{
+	margin:0 1em;
+	color:white
+}
+.App-Main{
+	display: grid;
+	grid-template-rows: 1fr;
+	overflow-y:scroll;
+}
