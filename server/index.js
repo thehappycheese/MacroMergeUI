@@ -19,6 +19,7 @@ app.get('/*', function(req, res) {
   console.log("proxying GET request", req.url);
   proxy.web(req, res, {});
 });
+
 app.post('/*', function(req, res) {
   console.log("proxying POST request", req.url);
   proxy.web(req, res, {});

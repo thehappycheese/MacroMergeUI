@@ -16,4 +16,9 @@ h1{
 	display: grid;
 	grid-template-rows: 1fr;
 	overflow-y:scroll;
+	padding-right:20px;
+}
+
+.App-Tab{
+	
 }

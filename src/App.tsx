@@ -1,11 +1,11 @@
-import React from 'react';
+//import React from 'react';
 import './App.css';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { Stepper, Step, StepLabel, CssBaseline, Button, Paper, ButtonGroup} from '@material-ui/core';
 import { useState } from 'react';
 import UploadTab from './Components/UploadTab';
 import LayoutCentreColumn from './Components/LayoutCentreColumn';
-import { AlternateEmail } from '@material-ui/icons';
+import JoinAndOverlapTab from './Components/JoinAndOverlapTab';
 
 
 const theme = createMuiTheme({
@@ -29,7 +29,7 @@ let steps = [
 		content:""
 	},
 	{
-		title:"Download Result",
+		title:"Run Process",
 		content:""
 	},
 
@@ -40,31 +40,47 @@ function App() {
 	let [current_step, set_current_step] = useState<number>(0);
 	let [file_list, set_file_list] = useState<File[]>([])
 	let [primary_file, set_primary_file] = useState<number>(0)
+	
+	let prev_step_handler = ()=>{
+		switch(current_step){
+			case 1:
+				set_current_step(0)
+		}
+	}
+
+	let next_step_handler = ()=>{
+		switch(current_step){
+			case 0:
+				if(file_list.length>0){
+					set_current_step(1)
+				}else{
+					alert("please select some files before proceeding to the next step")
+				}
+		}
+	}
 
 	return (
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
-			<LayoutCentreColumn min={500} max={1024}>
+			<LayoutCentreColumn min={800} max={1500}>
 				<div className="App">
 					<header className="App-Header">
 						<h1>Merge Tool</h1>
 					</header>
 					<Paper style={{padding:10}} >
 						
-						<Stepper orientation="vertical" style={{ backgroundColor: "transparent" }}>
+						<Stepper activeStep={current_step} orientation="vertical" style={{ backgroundColor: "transparent" }}>
 							{steps.map(({title, content}, index) => {
 								return (
-									<Step key={index}>
+									<Step key={title}>
 										<StepLabel>{title}</StepLabel>
 									</Step>
 								);
 							})}
 						</Stepper>
 						<ButtonGroup fullWidth>
-							<Button>Previous</Button>
-							<Button variant="contained" onClick={()=>{
-								alert("proceeding with upload?")
-							}}>Next</Button>
+							<Button onClick={prev_step_handler}>Previous</Button>
+							<Button variant="contained" onClick={next_step_handler}>Next</Button>
 						</ButtonGroup>
 
 					</Paper>
@@ -72,7 +88,7 @@ function App() {
 						{
 							[
 								<UploadTab file_list={file_list} set_file_list={set_file_list} primary_file={primary_file} set_primary_file={set_primary_file} />,
-								<Tab2/>
+								<JoinAndOverlapTab file_list={file_list} primary_file={primary_file}/>
 							][current_step]
 						}
 					</div>
