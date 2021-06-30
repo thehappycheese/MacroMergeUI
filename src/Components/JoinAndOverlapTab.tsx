@@ -1,22 +1,23 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
-import Button from '@material-ui/core/Button'
 import {  useEffect, useState } from 'react';
 import { zip_undefined } from '../iter';
 import get_column_names from '../processing'
+import { ReactStateValueSetterPair } from '../type_utils';
 import CellManipulator from './CellManipulator';
+import "./JoinAndOverlapTab.css";
 
 
+type JoinAndOverlapTabPropTypes = {
+	file_list: ReactStateValueSetterPair<File[]>;
+};
 
-export default function JoinAndOverlapTab(props:{
-	file_list:File[],
-	primary_file:number
-}){
+export default function JoinAndOverlapTab({file_list}:JoinAndOverlapTabPropTypes){
 	let [column_names, set_column_names] = useState<string[][]>([])
 
 	useEffect(()=>{
 			const get_columns = async () => {
 				let result:string[][] = [];
-				for await (let item of props.file_list){
+				for await (let item of file_list.value){
 					let col_names = await get_column_names(item)
 					result.push(col_names as string[])
 				}
@@ -24,18 +25,18 @@ export default function JoinAndOverlapTab(props:{
 			}
 			get_columns();
 		},
-		[props.file_list]
+		[file_list.value]
 	);
 
 	return (
 		<div className="App-Tab">
 			{column_names.length>0 &&
 				<TableContainer component={Paper}>
-					<Table>
+					<Table className='main_table'>
 						<TableHead>
 							<TableRow>
 								{
-									props.file_list
+									file_list.value
 									.map(item =>
 										<TableCell>{item.name}</TableCell>
 									)
@@ -51,9 +52,9 @@ export default function JoinAndOverlapTab(props:{
 									?
 									<CellManipulator 
 										id={row_index}
-										primary={column_index===1}
+										primary={column_index!==0}
 										name={column_name}
-										new_name={{value:column_name, set:()=>{}}}
+										new_name={{value:"", set:()=>{}}}
 										drop={{value:true, set:()=>{}}}
 										action={{value:"merge", set:()=>{}}}
 									/>
