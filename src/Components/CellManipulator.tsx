@@ -1,40 +1,36 @@
 import { Checkbox, Select, TextField } from "@material-ui/core";
 import { MenuItem } from "@material-ui/core";
 import { TableCell } from "@material-ui/core";
-import { ReactStateValueSetterPair } from "../type_utils";
+import { useAppSelector, root_actions, useAppDispatch } from "../store";
 
 
-export type cell_action_name = "join" | "merge"
-
-	type CellManipulatorPropTypes = {
-		primary: boolean,
-		name: string,
-		id: number,
-		new_name: ReactStateValueSetterPair < string >,
-		drop: ReactStateValueSetterPair < boolean >,
-		action: ReactStateValueSetterPair < string >,
-	}
-
-export default function CellManipulator(props: CellManipulatorPropTypes) {
 
 
+type CellManipulatorPropTypes = {
+	column_index:number,
+	row_index:number
+}
+
+export default function CellManipulator({column_index, row_index}:CellManipulatorPropTypes) {
+
+	let column_action = useAppSelector(store=>store.files[column_index].column_actions[row_index])
+	let dispatch = useAppDispatch();
+	
 	return (
 		<TableCell style={{padding:"0px"}}>
 			<div style={{display:"flex"}}>
-				<Checkbox checked={props.drop.value} onChange={(e)=>props.drop.set(e.target.checked)} />
-				<TextField label={props.name} value={props.new_name.value} onChange={(e) => props.new_name.set(e.target.value)}/>
+				<Checkbox checked={!column_action.drop} onChange={(e)=>dispatch(root_actions.set_column_drop(row_index, column_index, !e.target.checked))} />
+				<TextField label={column_action.name} value={column_action.rename||""} onChange={(e) => dispatch(root_actions.set_column_rename(row_index, column_index, e.target.value))}/>
 				{
-					props.primary
+					column_index===0
 					&&
-					
-						<Select
-							value={props.action.value}
-							onChange={(e) => props.action.set(e.target.value as string)}
-						>
-							<MenuItem value={"join"}>Join</MenuItem>
-							<MenuItem value={"merge"}>Merge</MenuItem>
-						</Select>
-					
+					<Select
+						value={"join"}
+						onChange={()=>{}}
+					>
+						<MenuItem value={"join"}>Join</MenuItem>
+						<MenuItem value={"merge"}>Merge</MenuItem>
+					</Select>
 				}
 			</div>
 		</TableCell>

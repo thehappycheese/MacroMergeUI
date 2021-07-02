@@ -2,44 +2,42 @@
 import './App.css';
 
 import { Stepper, Step, StepLabel, Button, Paper, ButtonGroup} from '@material-ui/core';
-import { useState } from 'react';
 import UploadTab from './Components/UploadTab';
 import LayoutCentreColumn from './Components/LayoutCentreColumn';
 import JoinAndOverlapTab from './Components/JoinAndOverlapTab';
-import { useReactStateValueSetterPair } from "./type_utils";
-import { useAppSelector } from './store';
-
+import { useAppSelector,root_actions, useAppDispatch } from './store';
 
 
 
 
 function App() {
 	let current_step = useAppSelector(store=>store.current_step)
-	
-	let file_list = useReactStateValueSetterPair<File[]>([])
-	
-	let prev_step_handler = () => {
-		switch(current_step){
-			case 1:
-				set_current_step(0)
-		}
-	}
-
-	let next_step_handler = ()=>{
-		switch(current_step){
-			case 0:
-				if(file_list.value.length>0){
-					set_current_step(1)
-				}else{
-					alert("please select some files before proceeding to the next step")
-				}
-		}
-	}
-
+	let dispatch = useAppDispatch();
 	return (
 		
 		<LayoutCentreColumn min={800} max={1500}>
+			<input
+				accept="*"
+				style={{ display: 'none' }}
+				id="raised-button-file"
+				multiple
+				type="file"
+				onChange={(e) => {
+					console.log(e.target.files)
+					dispatch(
+						root_actions.set_file_list(
+							Array.from(e.target.files || [])
+							.map((item,index)=>({
+								name:item.name,
+								size:item.size,
+								id:index
+							}))
+						)
+					);
+				}}
+			/>
 			<div className="App">
+
 				<header className="App-Header">
 					<h1>Merge Tool</h1>
 				</header>
@@ -61,16 +59,16 @@ function App() {
 					</Stepper>
 
 					<ButtonGroup fullWidth>
-						<Button onClick={prev_step_handler}>Previous</Button>
-						<Button variant="contained" onClick={next_step_handler}>Next</Button>
+						<Button onClick={()=>dispatch(root_actions.prev_step)}>Previous</Button>
+						<Button variant="contained" onClick={()=>dispatch(root_actions.next_step)}>Next</Button>
 					</ButtonGroup>
 
 				</Paper>
 				<div className="App-Main">
 					{
 						[
-							<UploadTab file_list={file_list}/>,
-							<JoinAndOverlapTab file_list={file_list}/>
+							<UploadTab/>,
+							<JoinAndOverlapTab/>
 						][current_step]
 					}
 				</div>

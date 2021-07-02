@@ -1,20 +1,11 @@
 import { Button, Typography , Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@material-ui/core';
 import format_file_size from '../format_file_size';
-import { ReactStateValueSetterPair as StateValueSetterPair } from '../type_utils';
+import { useAppSelector, root_actions, useAppDispatch} from '../store';
 
+export default function UploadTab() {
 
-type UploadTabPropTypes = {
-	file_list: StateValueSetterPair<File[]>;
-};
-
-
-export default function UploadTab({file_list}:UploadTabPropTypes) {
-	
-	const  set_primary_file = (index:number)=>{
-		let new_file_list = [...file_list.value];
-		let [primary_file] = new_file_list.splice(index, 1);
-		file_list.set(()=>[primary_file, ...new_file_list]);
-	}
+	let file_list = useAppSelector(state=>state.files);
+	let dispatch = useAppDispatch();
 
 	return (
 		<div className="App-Tab" >
@@ -23,16 +14,7 @@ export default function UploadTab({file_list}:UploadTabPropTypes) {
 
 			<p>Use the upload button below to select files to upload</p>
 
-			<input
-				accept="*"
-				style={{ display: 'none' }}
-				id="raised-button-file"
-				multiple
-				type="file"
-				onChange={(e) => {
-					file_list.set(Array.from(e.target.files || []));
-				}}
-			/>
+			
 			
 			<label htmlFor={"raised-button-file"}>
 				<Button variant="contained" component="span" style={{margin:"10px 0" }}>
@@ -55,19 +37,19 @@ export default function UploadTab({file_list}:UploadTabPropTypes) {
 
 					<TableBody>
 						{
-							file_list.value.length>0
+							file_list.length>0
 							?
-							file_list.value.map((item, row_index)=>
-								<TableRow key={item.name}>
-									<TableCell>{item.name}</TableCell>
-									<TableCell>{format_file_size(item.size, "SI-Full")}</TableCell>
+							file_list.map((file_action, row_index)=>
+								<TableRow key={file_action.file.name}>
+									<TableCell>{file_action.file.name}</TableCell>
+									<TableCell>{format_file_size(file_action.file.size, "SI-Full")}</TableCell>
 									<TableCell>
 										{
 											row_index===0
 											?
 											<>Target Segmentation</>
 											:
-											<Button variant="outlined" onClick={(e)=> set_primary_file(row_index)}>
+											<Button variant="outlined" onClick={(e)=> dispatch(root_actions.move_file_to_top(row_index))}>
 												Use as Target
 											</Button>
 										}

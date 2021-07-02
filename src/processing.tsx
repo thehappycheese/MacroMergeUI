@@ -1,20 +1,20 @@
 import csv_parse from 'csv-parse';
 
 
-function* iter_file_slice(file:File, number_of_bytes:number){
-	let offset_start = 0;
-	let offset_end = number_of_bytes;
+// function* iter_file_slice(file:File, number_of_bytes:number){
+// 	let offset_start = 0;
+// 	let offset_end = number_of_bytes;
 	
-	while (offset_end<file.size){
-		yield file.slice(offset_start, offset_end)
-		offset_start+=number_of_bytes;
-		offset_end+=number_of_bytes;
+// 	while (offset_end<file.size){
+// 		yield file.slice(offset_start, offset_end)
+// 		offset_start+=number_of_bytes;
+// 		offset_end+=number_of_bytes;
 		
-	}
-	if(offset_start<file.size){
-		yield file.slice(offset_start, file.size-1)
-	}
-}
+// 	}
+// 	if(offset_start<file.size){
+// 		yield file.slice(offset_start, file.size-1)
+// 	}
+// }
 
 export default async function get_column_names(csv_file:File, encoding="utf-8", kb_to_laod=4){
 	//let decoder = new TextDecoder('utf-8')
