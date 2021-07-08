@@ -1,6 +1,7 @@
 import { PlaylistAddOutlined } from "@material-ui/icons";
-import { configureStore,createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { configureStore,createAsyncThunk,createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import get_csv_sample from "./processing";
 
 
 interface MergeAction_Simple{
@@ -53,6 +54,23 @@ export interface StateType {
 	files:FileAction[],
 }
 
+export const fetch_column_details_from_csvs = createAsyncThunk<FileAction[], FileList|null, {}>(
+	"fetch_column_details_from_csvs",
+	async (files:FileList|null, thunkAPI) => {
+		let column_names = await Promise.all(Array.from(files??[]).map(file=>get_csv_sample(file)))
+		console.log(column_names)
+		return Array.from(files ?? [])
+			.map((item, index) => ({
+				file:{
+					name: item.name,
+					size: item.size,
+					id:   index
+				},
+				column_actions:column_names[index][0].map(item=>({name:item.toString()}))
+			})
+		);
+	}
+);
 
 const RootSlice = createSlice({
 
@@ -71,17 +89,6 @@ const RootSlice = createSlice({
 		prev_step:(state)=>{
 			state.current_step--;
 		},
-
-		set_file_list:(state, action:PayloadAction<{name:string,size:number,id:number}[]>)=>{
-			state.files = action.payload.map((item, index)=>(
-				{
-					file:item,
-					column_actions:[]
-				}
-			))
-		},
-		initialize_column_actions:(state, action)=>{},
-
 		move_file_to_top:{
 			prepare:(index:number)=>({type:"MOVE_FILE_TO_TOP", payload:index}),
 			reducer:(state, action:PayloadAction<number>)=>{
@@ -97,13 +104,18 @@ const RootSlice = createSlice({
 				state.files[action.payload.column_index].column_actions[action.payload.row_index].drop=action.payload.drop;
 			}
 		},
-		set_column_rename:{
-			prepare:(row_index:number, column_index:number, name:string)=>({type:"COLUMN_ACTION_SET_NAME", payload:{row_index, column_index, name}}),
-			reducer:(state, action:PayloadAction<{row_index:number, column_index:number, name:string}>)=>{
-				state.files[action.payload.column_index].column_actions[action.payload.row_index].name=action.payload.name;
-			}
+		set_column_rename:(state, action:PayloadAction<{row_index:number, column_index:number, rename:string}>)=>{
+			state.files[action.payload.column_index].column_actions[action.payload.row_index].rename=action.payload.rename;
 		},
-	}
+	},
+	extraReducers: (builder) => {
+		builder.addCase(fetch_column_details_from_csvs.fulfilled, (state, action) => {
+			state.files = action.payload;
+		})
+		builder.addCase(fetch_column_details_from_csvs.rejected, (state, action) => {
+			state.files = [];
+		})
+	},
 });
 
 export const store = configureStore({

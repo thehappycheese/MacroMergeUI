@@ -20,16 +20,24 @@ export default function CellManipulator({column_index, row_index}:CellManipulato
 		<TableCell style={{padding:"0px"}}>
 			<div style={{display:"flex"}}>
 				<Checkbox checked={!column_action.drop} onChange={(e)=>dispatch(root_actions.set_column_drop(row_index, column_index, !e.target.checked))} />
-				<TextField label={column_action.name} value={column_action.rename||""} onChange={(e) => dispatch(root_actions.set_column_rename(row_index, column_index, e.target.value))}/>
+				<TextField 
+					disabled={column_action.drop ?? false}
+					label={column_action.name} value={column_action.rename || ""}
+					onChange={(e) => dispatch(
+						root_actions.set_column_rename({row_index, column_index, rename:e.target.value})
+					)}
+				/>
 				{
-					column_index===0
+					column_index!==0
 					&&
 					<Select
-						value={"join"}
+						disabled={column_action.drop}
 						onChange={()=>{}}
+						value="aggregate"
 					>
-						<MenuItem value={"join"}>Join</MenuItem>
-						<MenuItem value={"merge"}>Merge</MenuItem>
+						<MenuItem>Join</MenuItem>
+						<MenuItem>Intersect Interval</MenuItem>
+						<MenuItem>Aggregate</MenuItem>
 					</Select>
 				}
 			</div>

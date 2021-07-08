@@ -29,7 +29,7 @@ export default function JoinAndOverlapTab(){
 			{
 				file_actions.length>0 
 				&&
-				<TableContainer component={Paper}>
+				<TableContainer component={Paper} style={{marginTop:"20px", padding:"10px", width:"auto"}}>
 					<Table className='main_table'>
 						<TableHead>
 							<TableRow>

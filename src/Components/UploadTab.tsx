@@ -24,7 +24,7 @@ export default function UploadTab() {
 
 			<p>Use the buttons on the right to make sure the target segmentation file is at the top:</p>
 
-			<TableContainer component={Paper} style={{marginTop:"20px", padding:"10px"}}>
+			<TableContainer component={Paper} style={{marginTop:"20px", padding:"10px", width:"auto"}}>
 				<Table>
 
 					<TableHead>
