@@ -1,0 +1,41 @@
+/* .NickFileInput{
+	
+} */
+
+.NickFileInput-FileGrid{
+	display:grid;
+	grid-template-columns: 1fr minmax(auto, 3fr) auto auto 1fr;
+	gap:10px;
+}
+
+.NickFileInput-Dropzone{
+	user-select: none;
+	height:200px;
+	padding:30px;
+	text-align: center;
+	border:2px dashed grey;
+	display: grid;
+	grid-template-columns: 1fr auto auto 1fr;
+	align-content: center;
+
+}
+
+.NickFileInput-Dropzone *{
+	pointer-events: none;
+}
+.NickFileInput-Dropzone:hover{
+	border-color: antiquewhite;
+	cursor: pointer;
+}
+.NickFileInput-FileGrid{
+	margin-top:20px;
+	padding:30px;
+}
+.NickFileInput-FileGridCell, .NickFileInput-FileGridHeader{
+	padding:12px;
+	line-height: 24px;
+}
+
+.NickFileInput-FileGridHeader{
+	font-size: 110%;
+}

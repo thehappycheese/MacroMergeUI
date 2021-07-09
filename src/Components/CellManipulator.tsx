@@ -19,7 +19,7 @@ export default function CellManipulator({column_index, row_index}:CellManipulato
 	return (
 		<TableCell style={{padding:"0px"}}>
 			<div style={{display:"flex"}}>
-				<Checkbox checked={!column_action.drop} onChange={(e)=>dispatch(root_actions.set_column_drop(row_index, column_index, !e.target.checked))} />
+				<Checkbox checked={!column_action.drop} onChange={(e)=>dispatch(root_actions.set_column_drop({row_index, column_index, drop:!e.target.checked}))} />
 				<TextField 
 					disabled={column_action.drop ?? false}
 					label={column_action.name} value={column_action.rename || ""}

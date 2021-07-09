@@ -2,35 +2,32 @@
 import './App.css';
 
 import { Stepper, Step, StepLabel, Button, Paper, ButtonGroup } from '@material-ui/core';
-import UploadTab from './Components/UploadTab';
 import LayoutCentreColumn from './Components/LayoutCentreColumn';
 import JoinAndOverlapTab from './Components/JoinAndOverlapTab';
 import { useAppSelector, root_actions, useAppDispatch, fetch_column_details_from_csvs } from './store';
-import { useRef } from 'react';
+import { useEffect, useState } from 'react';
+import NickFileInput from './Components/NickFileInput';
 
 
 
 
 function App() {
 	let current_step = useAppSelector(store => store.current_step);
-	let file_list = useRef<FileList|null>(null);
+	
+	// The list of actual File objects is not kept in the redux store,
+	//   because redux is offended by non-serialisable DOM objects
+	let [real_file_list, set_real_file_list] = useState<File[]|null>(null);
 	let dispatch = useAppDispatch();
+
+	useEffect(()=>{
+		dispatch(fetch_column_details_from_csvs(real_file_list ?? []))
+	},[dispatch, real_file_list])
+
+	
 	return (
 
 		<LayoutCentreColumn min={800} max={1500}>
-			<input
-				accept=".csv"
-				style={{ display: 'none' }}
-				id="raised-button-file"
-				multiple
-				type="file"
-				onChange={e=>{
-					dispatch(fetch_column_details_from_csvs(e.target.files));
-					file_list.current = e.target.files;
-				}}
-			/>
 			<div className="App">
-
 				<header className="App-Header">
 					<h1>Merge Tool</h1>
 				</header>
@@ -60,7 +57,9 @@ function App() {
 				<div className="App-Main">
 					{
 						[
-							<UploadTab />,
+							<div className="App-Tab" >
+								<NickFileInput files={real_file_list??[]} onChange={e=>set_real_file_list(e)} accept=".csv"/>
+							</div>,
 							<JoinAndOverlapTab />
 						][current_step]
 					}

@@ -1,4 +1,3 @@
-import { PlaylistAddOutlined } from "@material-ui/icons";
 import { configureStore,createAsyncThunk,createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import get_csv_sample from "./processing";
@@ -54,13 +53,16 @@ export interface StateType {
 	files:FileAction[],
 }
 
-export const fetch_column_details_from_csvs = createAsyncThunk<FileAction[], FileList|null, {}>(
+export const fetch_column_details_from_csvs = createAsyncThunk<FileAction[], File[], {}>(
 	"fetch_column_details_from_csvs",
-	async (files:FileList|null, thunkAPI) => {
-		let column_names = await Promise.all(Array.from(files??[]).map(file=>get_csv_sample(file)))
-		console.log(column_names)
-		return Array.from(files ?? [])
-			.map((item, index) => ({
+	async (files:File[], thunkAPI) => {
+		
+		// A particularly delicious async call will wait until we got the columns from all csv inputs:
+		let column_names = await Promise.all(
+			files.map(file=>get_csv_sample(file))
+		);
+
+		return files.map((item, index) => ({
 				file:{
 					name: item.name,
 					size: item.size,
@@ -89,24 +91,21 @@ const RootSlice = createSlice({
 		prev_step:(state)=>{
 			state.current_step--;
 		},
-		move_file_to_top:{
-			prepare:(index:number)=>({type:"MOVE_FILE_TO_TOP", payload:index}),
-			reducer:(state, action:PayloadAction<number>)=>{
+
+		move_file_to_top:(state, action:PayloadAction<number>)=>{
 				let new_file_list = [...state.files];
 				let [primary_file] = new_file_list.splice(action.payload, 1);
 				state.files = [primary_file, ...new_file_list];
-			}
 		},
 
-		set_column_drop:{
-			prepare:(row_index:number, column_index:number, drop:boolean)=>({type:"COLUMN_ACTION_SET_DROP", payload:{row_index, column_index, drop}}),
-			reducer:(state, action:PayloadAction<{row_index:number, column_index:number, drop:boolean}>)=>{
-				state.files[action.payload.column_index].column_actions[action.payload.row_index].drop=action.payload.drop;
-			}
+		set_column_drop:(state, action:PayloadAction<{row_index:number, column_index:number, drop:boolean}>)=>{
+			state.files[action.payload.column_index].column_actions[action.payload.row_index].drop=action.payload.drop;
 		},
+
 		set_column_rename:(state, action:PayloadAction<{row_index:number, column_index:number, rename:string}>)=>{
 			state.files[action.payload.column_index].column_actions[action.payload.row_index].rename=action.payload.rename;
 		},
+
 	},
 	extraReducers: (builder) => {
 		builder.addCase(fetch_column_details_from_csvs.fulfilled, (state, action) => {

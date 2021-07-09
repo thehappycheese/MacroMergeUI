@@ -2,7 +2,7 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 import { zip_undefined } from '../iter';
 import { useAppSelector } from '../store';
 import CellManipulator from './CellManipulator';
-import "./JoinAndOverlapTab.css";
+
 
 
 
