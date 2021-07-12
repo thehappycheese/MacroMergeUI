@@ -9,21 +9,7 @@ import CellManipulator from './CellManipulator';
 
 export default function JoinAndOverlapTab(){
 	let file_actions = useAppSelector(store=>store.files)
-
-	// useEffect(()=>{
-	// 		const get_columns = async () => {
-	// 			let result:string[][] = [];
-	// 			for await (let item of file_actions){
-	// 				let col_names = await get_column_names(item)
-	// 				result.push(col_names as string[])
-	// 			}
-	// 			set_column_names(result)
-	// 		}
-	// 		get_columns();
-	// 	},
-	// 	[file_list.value]
-	// );
-
+	let file_actions_filtered = file_actions.filter(item=>item.column_actions!==undefined)
 	return (
 		<div className="App-Tab">
 			{

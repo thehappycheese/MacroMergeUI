@@ -77,7 +77,7 @@ export default function NickFileInput({files, onChange, accept=""}:NickFileInput
 					<div></div>
 					{
 						files.map((item,index)=>[
-							<div></div>,
+							<div key={"lpad"+index}></div>,
 							<div key={item.name+item.size+"name"} className="NickFileInput-FileGridCell">{item.name}</div>,
 							<div key={item.name+item.size+"size"} className="NickFileInput-FileGridCell">{format_file_size(item.size)}</div>,
 							<IconButton
@@ -90,7 +90,7 @@ export default function NickFileInput({files, onChange, accept=""}:NickFileInput
 							>
 								<DeleteIcon />
 							</IconButton>,
-							<div></div>
+							<div key={"rpad"+index}></div>
 						]).flat()
 					}
 				</Paper>

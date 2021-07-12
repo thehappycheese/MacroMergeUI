@@ -45,7 +45,8 @@ export interface FilePointer{
 
 export interface FileAction{
 	file:FilePointer;
-	column_actions:ColumnAction[]
+	column_actions:ColumnAction[];
+	status:string;
 }
 
 export interface StateType {
@@ -53,12 +54,35 @@ export interface StateType {
 	files:FileAction[],
 }
 
+export const fetch_column_details_from_csv = createAsyncThunk<FileAction, {file:File,index:number}, {}>(
+	"fetch_column_details_from_csv",
+	async ({file, index}, thunkAPI) => {
+
+		let sample = undefined;
+		try{
+			sample = await get_csv_sample(file)
+		}catch(e){
+			console.log(`Failed to retrieve column names for file ${file.name}`)
+		}
+		
+		return {
+			file:{
+				name:file.name,
+				size:file.size,
+				id:index
+			},
+			column_actions:(sample)?sample[0].map(item=>({name:item.toString()})):[],
+			status:"ok"
+		}
+	}
+);
+
 export const fetch_column_details_from_csvs = createAsyncThunk<FileAction[], File[], {}>(
 	"fetch_column_details_from_csvs",
 	async (files:File[], thunkAPI) => {
 		
 		// A particularly delicious async call will wait until we got the columns from all csv inputs:
-		let column_names = await Promise.all(
+		let samples = await Promise.all(
 			files.map(file=>get_csv_sample(file))
 		);
 
@@ -68,7 +92,7 @@ export const fetch_column_details_from_csvs = createAsyncThunk<FileAction[], Fil
 					size: item.size,
 					id:   index
 				},
-				column_actions:column_names[index][0].map(item=>({name:item.toString()}))
+				column_actions:(samples[index])?(samples[index] as (string|number)[][])[0].map(item=>({name:item.toString()})):[]
 			})
 		);
 	}
@@ -99,12 +123,27 @@ const RootSlice = createSlice({
 		},
 
 		set_column_drop:(state, action:PayloadAction<{row_index:number, column_index:number, drop:boolean}>)=>{
-			state.files[action.payload.column_index].column_actions[action.payload.row_index].drop=action.payload.drop;
+			let file = state.files[action.payload.column_index];
+			if (file.column_actions)
+				file.column_actions[action.payload.row_index].drop=action.payload.drop;
 		},
 
 		set_column_rename:(state, action:PayloadAction<{row_index:number, column_index:number, rename:string}>)=>{
-			state.files[action.payload.column_index].column_actions[action.payload.row_index].rename=action.payload.rename;
+			let file = state.files[action.payload.column_index];
+			if (file.column_actions)
+				file.column_actions[action.payload.row_index].rename=action.payload.rename;
 		},
+		add_blank_file:(state,action:PayloadAction<{file:File, index:number}>)=>{
+			state.files[action.payload.index] = {
+				file:{
+					name: action.payload.file.name,
+					size: action.payload.file.size,
+					id:   action.payload.index
+				},
+				column_actions:[],
+				status:"waiting"
+			}
+		}
 
 	},
 	extraReducers: (builder) => {
