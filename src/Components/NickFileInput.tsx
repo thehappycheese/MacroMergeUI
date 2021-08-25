@@ -4,11 +4,12 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import "./NickFileInput.css"
 import Paper from "@material-ui/core/Paper";
 import format_file_size from "../format_file_size";
+import FileStore from "../FileStore";
 
 
 type NickFileInputPropTypes = {
-	files: File[];
-	onChange: (e: File[]) => void;
+	files: FileStore;
+	onChange: (all_uids:number[], new_uids:number[]) => void;
 	accept?: string;
 };
 
@@ -22,13 +23,13 @@ export default function NickFileInput({files, onChange, accept=""}:NickFileInput
 					e.stopPropagation()
 					e.currentTarget.style.borderColor="";
 					e.currentTarget.style.backgroundColor="";
-					onChange([
-						...files,
-						...Array.from(e.dataTransfer.items ?? [])
+
+					let new_uids = Array.from(e.dataTransfer.items ?? [])
 						.filter(item=>item.kind==="file")
 						.map(item=>item.getAsFile())
 						.filter((item):item is File=>item!==null)
-					]);
+						.map(files.add_file);
+					onChange(files.get_all_uids(), new_uids)
 				}}
 				onDragOverCapture={(e)=>{
 					e.stopPropagation()
@@ -61,10 +62,12 @@ export default function NickFileInput({files, onChange, accept=""}:NickFileInput
 					accept={accept}
 					multiple
 					onChange={(e)=>{
-							onChange([...files, ...e.target.files ?? [] ]);
-							(e.target as any).value = null;
-						}
-					}
+						let new_uids = Array.from(e.target.files ?? [])
+							//.filter((item):item is File=>item!==null)
+							.map(files.add_file);
+						onChange(files.get_all_uids(), new_uids);
+						(e.target as any).value = null;
+					}}
 				/>
 			</label>
 			{

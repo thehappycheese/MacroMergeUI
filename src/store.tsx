@@ -1,10 +1,11 @@
 import { configureStore,createAsyncThunk,createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import { FileUID } from "./FileStore";
 import get_csv_sample from "./processing";
 
 
 interface MergeAction_Simple{
-	type:"first"|"last"|"maximum"|"minimum"|"sum"|"longest";
+	type:"longest"|"last"|"maximum"|"minimum"|"sum"|"longest";
 }
 
 interface MergeAction_Percentile{
@@ -34,17 +35,9 @@ export interface ColumnAction{
 	action?:MergeAction_Simple | MergeAction_Average | MergeAction_Percentile | JoinAction;
 }
 
-/**
- * Points to a file waiting an a FileList of an <input type="file"/>
- */
-export interface FilePointer{
-	name:string,
-	size:number,
-	id:number
-}
 
 export interface FileAction{
-	file:FilePointer;
+	file:FileUID;
 	column_actions:ColumnAction[];
 	status:string;
 }
@@ -151,7 +144,7 @@ const RootSlice = createSlice({
 			state.files = action.payload;
 		})
 		builder.addCase(fetch_column_details_from_csvs.rejected, (state, action) => {
-			state.files = [];
+			alert("failed to add files");
 		})
 	},
 });

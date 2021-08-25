@@ -7,9 +7,16 @@ import JoinAndOverlapTab from './Components/JoinAndOverlapTab';
 import { useAppSelector, root_actions, useAppDispatch, fetch_column_details_from_csvs } from './store';
 import { useEffect, useState } from 'react';
 import NickFileInput from './Components/NickFileInput';
-import FileStore from './FileStore';
+import FileStore, { file_store } from './FileStore';
 
+function useFileStore(){
+	let [file_uids, set_file_uids] = useState<number[]>(file_store.get_all_uids());
+	let dispatch = useAppDispatch();
 
+	useEffect(()=>{
+		dispatch(fetch_column_details_from_csvs(real_file_list ?? []))
+	},[dispatch, real_file_list])
+}
 
 
 function App() {
@@ -17,12 +24,8 @@ function App() {
 	
 	// The list of actual File objects is not kept in the redux store,
 	//   because redux is offended by non-serialisable DOM File objects
-	let [real_file_list, set_real_file_list] = useState<FileStore>(new FileStore());
-	let dispatch = useAppDispatch();
-
-	useEffect(()=>{
-		dispatch(fetch_column_details_from_csvs(real_file_list ?? []))
-	},[dispatch, real_file_list])
+	
+	
 
 	
 
